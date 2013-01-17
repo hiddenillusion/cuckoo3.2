@@ -1,0 +1,31 @@
+<div class="section">
+    <div class="section-title">Lookups</div>
+    <table cellspacing="0" cellpadding="0" border="0" width="100%">
+        <colgroup>
+            <col width="150" />
+            <col width="*" />
+        </colgroup>
+        <tr>
+            <td><strong>Cymru</strong>:</td>
+            <td><span class="mono">${file["cymru"]}</span></td>
+        </tr>
+        <tr>
+	    <td><a href="https://www.virustotal.com/file/${file["md5"]}/analysis/"><strong>VirusTotal</strong></a>:</td>
+	    <td><span class="mono">${file["virustotal"]}</span></td>
+        </tr>
+        <tr>
+            <td><a href="http://innocuous.shadowserver.org/api/?query=${file["md5"]}"><strong>ShadowServer</strong></a></td>
+        </tr>
+        <tr>
+	    <td><a href="http://www.threatexpert.com/report.aspx?md5=${file["md5"]}"><strong>ThreatExpert</strong></a></td>
+        </tr>
+        <tr>
+            <td><a href="http://malwr.com/analysis/${file["md5"]}"><strong>Malwr</strong></a></td>
+        </tr>
+        <tr>
+            <td><a href="http://xml.ssdsandbox.net/view/${file["md5"]}"><strong>GFI</strong></a></td>
+        </tr>
+    </table>
+        <%include file="../images/arrow_up.html" />
+</div> 
+

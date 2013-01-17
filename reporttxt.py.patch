@@ -1,0 +1,13 @@
+--- ../orig/reporttxt.py	2012-02-04 05:16:34.000000000 -0800
++++ /opt/cuckoo/cuckoo/reporting/tasks/reporttxt.py	2012-07-17 05:33:31.678336107 -0700
+@@ -124,6 +124,10 @@
+                 self._report += "  SHA-256:   %s\n" % dropped["sha256"]
+                 self._report += "  SHA-512:   %s\n" % dropped["sha512"]
+                 self._report += "  Ssdeep:    %s\n" % dropped["ssdeep"]
++                self._report += "  YARA:      %s\n" % self._results["file"]["yara"]
++                self._report += "  ClamAV:    %s\n" % self._results["file"]["clamav"]
++                self._report += "  ClamAV (custom):    %s\n" % self._results["file"]["clamav_custom"]
++                self._report += "  Cymru:     %s\n" % self._results["file"]["cymru"]
+                 self._report += "\n"
+ 
+                 counter += 1

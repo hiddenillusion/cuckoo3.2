@@ -1,0 +1,153 @@
+--- ../orig/file.py	2012-02-04 05:16:34.000000000 -0800
++++ /opt/cuckoo/cuckoo/processing/file.py	2012-07-17 05:30:16.694327787 -0700
+@@ -17,10 +17,21 @@
+ # You should have received a copy of the GNU General Public License
+ # along with this program.  If not, see http://www.gnu.org/licenses/.
+ 
+-import os
++import os, subprocess
+ import sys
+ import hashlib
+ import binascii
++import socket
++import re
++from time import localtime, strftime
++import virustotal
++from datetime import datetime
++
++try:
++    import simplejson
++except:
++    print('Missing simplejson Python module.')
++
+ 
+ from cuckoo.processing.convert import convert_to_printable
+ 
+@@ -40,6 +51,17 @@
+ except ImportError, why:
+     IS_SSDEEP = False
+ 
++try:
++    # Try to import and compile YARA rules
++    import yara
++    rules = yara.compile('/path/to/rules.yara')
++    IS_YARA = True
++except ImportError, why:
++    IS_YARA = False
++
++clamscan_path = "/path/to/clamscan"
++custom_clam_db = "/path/to/custom/clamav/database"
++
+ class File:
+     """
+     Generate information regarding the specified file.
+@@ -121,6 +143,95 @@
+         except:
+             return None
+ 
++    def _get_yara(self):
++        """
++        Return Yara results of the file.
++        source: https://docs.google.com/open?id=0B_ATAbywNfuZRVFCd2tQNG55Qjg
++        @return: Yara hits
++        """
++        if not IS_YARA:
++            return None
++
++        if os.path.getsize(self.file_path) == 0:
++            return None
++        if os.path.getsize(self.file_path) > 0:
++            match = str(rules.match(self.file_path))
++        if match == '[]':
++            return None 
++
++        return match 
++
++    def _get_clamav(self):
++        """
++        Return ClamAV scan results of the file.
++        source: http://code.google.com/p/malwarecookbook/
++        """
++        if os.path.isfile(clamscan_path):
++            output = subprocess.Popen([clamscan_path, "--no-summary", self.file_path], stdout = subprocess.PIPE).communicate()[0]
++            result = output.split('\n')[0].split(':')[1]
++        else:
++            result = None
++        return result
++	
++    def _get_clamav_custom(self):
++        """
++        Return custom ClamAV scan results of the file.
++        source: http://code.google.com/p/malwarecookbook/
++        """
++        if os.path.isfile(clamscan_path) and os.path.isfile(custom_clam_db):
++            output = subprocess.Popen([clamscan_path, "--no-summary", "-d",custom_clam_db, self.file_path], stdout = subprocess.PIPE).communicate()[0]
++            result = output.split('\n')[0].split(':')[1]
++        else:
++            result = None
++        return result
++
++    def _get_virustotal(self):
++        """
++        Return percent of A/V hits from VirusTotal scan report of the file if one exists.
++        source : https://github.com/Gawen/virustotal
++        """
++        v = virustotal.VirusTotal("YOUR_API_KEY")
++        md5 = hashlib.md5(self.file_data).hexdigest()
++        try:
++            report = v.get(md5)
++            if report != None:
++                percentage = ("%.0f" % ((1.0 * report.positives / report.total) * 100))
++                date = report.scan_date
++                d = datetime.strptime(date, '%Y-%m-%d %H:%M:%S')
++                d_str = d.strftime('%b %d %Y')	
++                result = "%s - %s" % (d_str, percentage)
++            else:
++                result = "Not available"
++        except Exception, err:
++            result = "Error"
++
++        return result
++	
++
++    def _get_cymru(self):
++        """
++        Return Team Cymru Malware Hash Database results.
++        source: http://code.google.com/p/malwarecookbook/
++        """
++        md5 = hashlib.md5(self.file_data).hexdigest()
++        request = '%s\r\n' % md5
++        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
++        try:
++            s.connect(('hash.cymru.com', 43))
++            s.send('begin\r\n')
++            s.recv(1024)
++            s.send(request)
++            response = s.recv(1024)
++            s.send('end\r\n')
++            s.close()
++            if len(response) > 0:
++                resp_re = re.compile('\S+ (\d+) (\S+)')
++                match = resp_re.match(response)
++                response = "%s - %s" % (strftime("%b %d %Y", localtime(int(match.group(1)))), match.group(2))
++        except socket.error:
++            response = "Error"
++        return response
++
+     def _get_type(self):
+         """
+         Retrieves the libmagic type of the file.
+@@ -155,6 +266,11 @@
+         infos["sha256"] = self._get_sha256()
+         infos["sha512"] = self._get_sha512()
+         infos["ssdeep"] = self._get_ssdeep()
++        infos["yara"]   = self._get_yara()
++        infos["clamav"]   = self._get_clamav()
++        infos["virustotal"]   = self._get_virustotal()
++        infos["cymru"]   = self._get_cymru()
++        infos["clamav_custom"]   = self._get_clamav_custom()
+         infos["type"]   = self._get_type()
+ 
+-        return infos
+\ No newline at end of file
++        return infos

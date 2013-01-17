@@ -1,0 +1,18 @@
+--- ../orig/report.html	2012-02-04 05:16:34.000000000 -0800
++++ /opt/cuckoo/cuckoo/web/report.html	2012-07-10 10:19:30.000000000 -0700
+@@ -7,11 +7,15 @@
+             <li><a href="#network_analysis">Network Analysis</a></li>
+             <li><a href="#dropped_files">Dropped Files</a></li>
+             <li><a href="#screenshots">Screenshots</a></li>
++            <li><a href="#signatures">Signatures</a></li>
++            <li><a href="#lookups">Lookups</a></li>
+             <li><a href="#general_information">General Information</a></li>
+         </ul>
+     </div>
+     <div id="content">
+         <tag id="general_information" /><%include file="sections/general_information.html" />
++        <tag id="signatures" /><%include file="sections/signatures.html" />
++        <tag id="lookups" /><%include file="sections/lookups.html" />
+         <tag id="screenshots" /><%include file="sections/screenshots.html" />
+         <tag id="dropped_files" /><%include file="sections/dropped_files.html" />
+         <tag id="static_analysis" /><%include file="sections/static_analysis.html" />

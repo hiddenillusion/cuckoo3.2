@@ -1,0 +1,16 @@
+--- ../orig/data.py	2012-02-04 05:16:34.000000000 -0800
++++ /opt/cuckoo/cuckoo/processing/data.py	2012-07-17 05:36:44.662343319 -0700
+@@ -61,6 +61,13 @@
+                 
+                 cur_info = File(cur_path).process()
+                 dropped.append(cur_info)
++                # Check if the dropped files are already in the watched directory and delete if true since we don't need to re-analzye or conflicts; otherwise, move dropped file to watched directory for processing
++                check = os.path.join('/opt/samples/', cur_file)
++                if os.path.exists(check):
++                    os.remove(cur_path)
++                else:
++                    shutil.copy(cur_path,'/opt/samples')
++                    os.remove(cur_path)
+ 
+         return dropped
+     

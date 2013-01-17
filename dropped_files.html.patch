@@ -1,0 +1,30 @@
+--- ../orig/dropped_files.html	2012-02-04 05:16:34.000000000 -0800
++++ /opt/cuckoo/cuckoo/web/sections/dropped_files.html	2012-07-13 10:31:00.019769172 -0700
+@@ -27,7 +27,7 @@
+                         </tr>
+                         <tr>
+                             <td><strong>MD5</strong>:</td>
+-                            <td><span class="mono">${dropped_file["md5"]}</span></td>
++                            <td><a href="/search/${dropped_file["md5"]}"><span class="mono">${dropped_file["md5"]}</span></a></td>
+                         </tr>
+                         <tr>
+                             <td><strong>SHA1</strong>:</td>
+@@ -45,6 +45,18 @@
+                             <td><strong>Ssdeep</strong>:</td>
+                             <td><span class="mono">${dropped_file["ssdeep"]}</span></td>
+                         </tr>
++                        <tr>
++                            <td><strong>YARA</strong>:</td>
++                            <td><span class="mono">${dropped_file["yara"]}</span></td>
++                        </tr>
++                        <tr>
++                            <td><strong>ClamAV</strong>:</td>
++                            <td><span class="mono">${dropped_file["clamav"]}</span></td>
++                        </tr>
++                        <tr>
++                            <td><strong>ClamAV (custom)</strong>:</td>
++                            <td><span class="mono">${dropped_file["clamav_custom"]}</span></td>
++                        </tr>
+                     </table>
+                 </div>
+             </fieldset>
